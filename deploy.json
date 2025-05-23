@@ -1,0 +1,73 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "appServiceName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the Azure App Service."
+      }
+    },
+    "appServicePlanName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the App Service Plan."
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Location for all resources."
+      }
+    },
+    "sku": {
+      "type": "object",
+      "defaultValue": {
+        "Tier": "Standard",
+        "Size": "S1"
+      },
+      "metadata": {
+        "description": "SKU for the App Service Plan."
+      }
+    }
+  },
+  "variables": {
+    "appServicePlanId": "[resourceId('Microsoft.Web/serverfarms', parameters('appServicePlanName'))]",
+    "appServiceId": "[resourceId('Microsoft.Web/sites', parameters('appServiceName'))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Web/serverfarms",
+      "apiVersion": "2021-02-01",
+      "name": "[parameters('appServicePlanName')]",
+      "location": "[parameters('location')]",
+      "sku": "[parameters('sku')]",
+      "properties": {
+        "name": "[parameters('appServicePlanName')]",
+        "workerSize": "[parameters('sku').Size]",
+        "numberOfWorkers": 1,
+        "hostingEnvironment": null
+      }
+    },
+    {
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2021-02-01",
+      "name": "[parameters('appServiceName')]",
+      "location": "[parameters('location')]",
+      "dependsOn": [
+        "[variables('appServicePlanId')]"
+      ],
+      "properties": {
+        "serverFarmId": "[variables('appServicePlanId')]",
+        "httpsOnly": true
+      }
+    }
+  ],
+  "outputs": {
+    "appServiceUrl": {
+      "type": "string",
+      "value": "[concat('https://', parameters('appServiceName'), '.azurewebsites.net')]"
+    }
+  }
+}
