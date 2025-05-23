@@ -2,6 +2,11 @@
 
 @{
     ViewBag.Title = "Index";
+    var searchName = Context.Request.Query["searchName"].ToString();
+    var filteredModel = string.IsNullOrEmpty(searchName)
+        ? Model
+        : Model.Where(u => !string.IsNullOrEmpty(u.Name) && u.Name.Contains(searchName, StringComparison.OrdinalIgnoreCase));
+    var firstUser = Model.FirstOrDefault();
 }
 
 <h2>Index</h2>
@@ -9,31 +14,54 @@
 <p>
     @Html.ActionLink("Create New", "Create", "User")
 </p>
+
+<form method="get" asp-action="Index" class="form-inline" style="margin-bottom:15px;">
+    <input type="text" name="searchName" class="form-control" placeholder="Find by name" value="@searchName" />
+    <button type="submit" class="btn btn-primary" style="margin-left:5px;">Search</button>
+</form>
+
 <table class="table">
     <tr>
         <th>
-            @Html.DisplayNameFor(model => model.Name)
+            @if (firstUser != null)
+            {
+                @Html.DisplayNameFor(model => firstUser.Name)
+            }
+            else
+            {
+                @:Name
+            }
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.Email)
+            @if (firstUser != null)
+            {
+                @Html.DisplayNameFor(model => firstUser.Email)
+            }
+            else
+            {
+                @:Email
+            }
         </th>
         <th></th>
     </tr>
 
-@foreach (var item in Model) {
-    <tr>
-        <td>
-            @Html.DisplayFor(modelItem => item.Name)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.Email)
-        </td>
-        <td>
-            @Html.ActionLink("Edit", "Edit", new { id=item.Id }) |
-            @Html.ActionLink("Details", "Details", new { id=item.Id }) |
-            @Html.ActionLink("Delete", "Delete", new { id=item.Id })
-        </td>
-    </tr>
+@if (filteredModel != null)
+{
+    foreach (var item in filteredModel)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Email)
+            </td>
+            <td>
+                @Html.ActionLink("Edit", "Edit", new { id = item.Id }) |
+                @Html.ActionLink("Details", "Details", new { id = item.Id }) |
+                @Html.ActionLink("Delete", "Delete", new { id = item.Id })
+            </td>
+        </tr>
+    }
 }
-
 </table>
