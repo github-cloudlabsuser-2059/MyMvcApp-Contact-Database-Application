@@ -2,6 +2,7 @@
 
 @{
     ViewBag.Title = "Index";
+    var search = ViewBag.Search as string ?? "";
 }
 
 <h2>Index</h2>
@@ -9,6 +10,12 @@
 <p>
     @Html.ActionLink("Create New", "Create", "User")
 </p>
+
+<form method="get" asp-action="Index" class="form-inline" style="margin-bottom:15px;">
+    <input type="text" name="search" value="@search" class="form-control" placeholder="Search by name or email" />
+    <button type="submit" class="btn btn-primary">Search</button>
+</form>
+
 <table class="table">
     <tr>
         <th>
